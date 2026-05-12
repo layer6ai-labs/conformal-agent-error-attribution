@@ -105,6 +105,8 @@ python score.py --tasks dylan_gsm8k_uniformleft macnet_math_uniform \
 python score.py --datasets uniform --evaluators llm_naive --force
 ```
 
+To use the fine-tuned evaluator (`qwen3_ce_1_7b_uniform`), download the [model checkpoint](https://drive.google.com/file/d/1_VwNu5IKSUNa8GWW8rFu0s-V9ZX-1IJC/view?usp=sharing) from Google Drive and place it in the directory specified in `conf/conformal_method.yaml`.
+
 | Argument | Default | Description |
 |---|---|---|
 | `--datasets` | — | Dataset name(s); mutually exclusive with `--tasks` |
