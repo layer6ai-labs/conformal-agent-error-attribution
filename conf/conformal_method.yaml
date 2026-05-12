@@ -1,0 +1,282 @@
+# Conformal Prediction Configuration
+data:
+  # Raw dataset source
+  source_dataset: "Kevin355/Who_and_When"
+  raw_dataset_file: "who_and_when_dataset.csv"
+  
+  # Processed data files for each method
+  vanilla_data_file: "empirical_data/node_results.jsonl"
+  tree_binary_data_file: "empirical_data/infer_results.jsonl"
+
+# Dataset configurations with paths and failure mode suffixes
+datasets:
+  single_fm:
+    path: "empirical_data/experiment_20251229_105821/data/test_data.csv"
+    suffix: "_2_3"
+    description: "Single failure mode (2/3 position)"
+  
+  mix:
+    path: "empirical_data/experiment_20251229_124542/data/test_data.csv"
+    suffix: "_mix"
+    description: "Mixed failure modes"
+  
+  mid:
+    path: "empirical_data/experiment_mid_dense/data/test_data.csv"
+    suffix: "_mid"
+    description: "Mid-dense failure distribution"
+  
+  right:
+    path: "empirical_data/experiment_right_dense/data/test_data.csv"
+    suffix: "_right"
+    description: "Right-dense failure distribution"
+  
+  uniform:
+    path: "empirical_data/experiment_uniform/data/fm_uniform.csv"
+    suffix: "_uniform"
+    description: "Uniform distribution - all 3 regions"
+
+  uniformleft:
+    path: "empirical_data/experiment_left_dense/data/fm_left_uniform.csv"
+    suffix: "_uniformleft"
+    description: "Uniform distribution - left region"
+  
+  uniformmid:
+    path: "empirical_data/experiment_mid_dense/data/fm_mid_uniform.csv"
+    suffix: "_uniformmid"
+    description: "Uniform distribution - mid region"
+  
+  uniformright:
+    path: "empirical_data/experiment_right_dense/data/fm_right_uniform.csv"
+    suffix: "_uniformright"
+    description: "Uniform distribution - right region"
+
+processors:
+  node:
+    name: "NodeDataProcessor"
+    module: "src.scoreProcessor.node_processor"
+    output_file: "empirical_data/node_results.jsonl"
+    description: "Process data for node-level evaluation"
+    custom_args:
+      temperature: 1.0
+    
+  hierarchical:
+    name: "HierarchicalDataProcessor" 
+    module: "src.scoreProcessor.hierarchical_processor"
+    output_file: "empirical_data/infer_results.jsonl"
+    description: "Process data for hierarchical tree-based evaluation"
+
+  filter:
+    name: "FilteringDataProcessor"
+    module: "src.scoreProcessor.filtering_processor"
+    output_file: "empirical_data/filtering_node_results.jsonl"
+    description: "Process data for one-way filtering conformal method"
+    custom_args:
+      temperature: 1.0
+
+evaluators:
+  llm_naive:
+    name: "LLMNaiveEvaluator"
+    module: "src.evaluator.llm_naive_evaluator"
+    description: "LLM-based naive evaluation"
+    
+  llm_logprobs:
+    name: "LLMLogprobsEvaluator"
+    module: "src.evaluator.llm_logprobs_evaluator"
+    description: "LLM-based evaluation using logprobs"
+    n_logprobs: 5
+
+  llm_echo:
+    name: "LLMECHOPromptEvaluator"
+    module: "src.evaluator.llm_ECHOprompt_evaluator"
+    description: "LLM-based prompt engineered evaluation"
+
+  agent_echo:
+    name: "AgentECHOEvaluator"
+    module: "src.evaluator.agent_echo_evaluator"
+    description: "ECHO-based causal attribution evaluator using ablation and embedding similarity"
+    
+  qwen3_ce_1_7b:
+    name: "Qwen3CrossEntropyEvaluator"
+    module: "src.evaluator.qwen3_crossentropy_evaluator"
+    description: "Fine-tuned Qwen3 model for failure detection with cross-entropy"
+    checkpoint_path: "empirical_data/experiment_20251221_164436/checkpoint_epoch_11.pt"
+
+  qwen3_ce_1_7b_uniform:
+    name: "Qwen3CrossEntropyEvaluator"
+    module: "src.evaluator.qwen3_crossentropy_evaluator"
+    description: "Fine-tuned Qwen3 model for uniform distributed failure detection with cross-entropy"
+    checkpoint_path: "empirical_data/experiment_20260417_193519/checkpoint_epoch_19.pt"
+
+  qwen3_ce_8b:
+    name: "Qwen3CrossEntropyEvaluator"
+    module: "src.evaluator.qwen3_crossentropy_evaluator"
+    description: "Fine-tuned Qwen3 model for failure detection with cross-entropy"
+    checkpoint_path: "empirical_data/experiment_20251229_124542/checkpoint_epoch_3.pt"
+  
+  qwen3_ce_8b_uniform:
+    name: "Qwen3CrossEntropyEvaluator"
+    module: "src.evaluator.qwen3_crossentropy_evaluator"
+    description: "Fine-tuned Qwen3 model for uniform distributed failure detection with cross-entropy"
+    checkpoint_path: "empirical_data/experiment_20260213_090453/checkpoint_epoch_4.pt"   
+
+scorers:
+  hierarchical:
+    name: "HierarchicalConformalScorer"
+    module: "src.scorer.hierarchical_conformal_scorer"
+    description: "Hierarchical conformal scorer for tree-based methods"
+    
+  naive:
+    name: "NaiveScorer"
+    module: "src.scorer.naive_scorer"
+    description: "Naive scorer that directly returns evaluator score"
+    
+  max:
+    name: "MaxScorer"
+    module: "src.scorer.max_scorer"
+    description: "Max scorer that evaluates each position individually and returns max score"
+
+  sum:
+    name: "SumScorer"
+    module: "src.scorer.sum_scorer"
+    description: "Sum scorer that evaluates each position individually and returns summed score"
+
+# Aggregators for the evaluator-free workflow (load from node_results_test_set directly)
+# Parameterised aggregators use the naming convention  <type>_<hyperparam>
+# e.g.  logsumexp_1.0  or  lengthpenalized_0.05
+aggregators:
+  sum:
+    module: "src.aggregator.sum_aggregator"
+    name: "SumAggregator"
+    description: "Cumulative sum normalised by trajectory length"
+  max:
+    module: "src.aggregator.max_aggregator"
+    name: "MaxAggregator"
+    description: "Running maximum normalised by trajectory length"
+  logsumexp:
+    module: "src.aggregator.logsumexp_aggregator"
+    name: "LogSumExpAggregator"
+    description: "LogSumExp aggregator: g_lse(scores, beta) = logsumexp(beta*scores) / (n*beta). Runtime name: logsumexp_<beta>"
+    default_beta: 1.0
+    sweep_betas: [0.0001, 1.0, 10.0]
+  normalizedlogsumexp:
+    module: "src.aggregator.normalized_logsumexp_aggregator"
+    name: "NormalizedLogSumExpAggregator"
+    description: "Normalized LSE: (logsumexp(beta*n*scores) - log(n)) / beta. Runtime name: normalizedlogsumexp_<beta>"
+    default_beta: 1.0
+    sweep_betas: [0.01, 0.1, 1.0, 10.0]
+  lengthpenalized:
+    module: "src.aggregator.length_penalized_aggregator"
+    name: "LengthPenalizedAggregator"
+    description: "Sum + lambda*log(n) length bonus. Runtime name: lengthpenalized_<lambda>"
+    default_lambda: 0.05
+    sweep_lambdas: [0.001, 0.01, 0.02, 0.05, 0.1]
+  lengthpenalizedwithmax:
+    module: "src.aggregator.length_penalized_with_max_aggregator"
+    name: "LengthPenalizedWithMaxAggregator"
+    description: "Sum + lambda*log(n) with max combine. Runtime name: lengthpenalizedwithmax_<lambda>"
+    default_lambda: 0.05
+    sweep_lambdas: [0.01, 0.02, 0.05, 0.1]
+
+methods:
+  filter:
+    name: "OneWayFiltering"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "naive"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_node_results.jsonl"
+
+  right_filter_sum:
+    name: "RightFilteringSum"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "sum"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  left_filter_sum:
+    name: "LeftFilteringSum"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "sum"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  2way_filter_sum:
+    name: "TwoWayFilteringSum"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "sum"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  right_filter_max:
+    name: "RightFilteringMax"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "max"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  left_filter_max:
+    name: "LeftFilteringMax"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "max"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  2way_filter_max:
+    name: "TwoWayFilteringMax"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "max"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+
+  adv_2way_filter_sum:
+    name: "AdvancedTwoWayFilteringSum"
+    processor: "filter"  # or whichever processor is appropriate
+    scorer: "sum"    # or whichever scorer is appropriate
+    data_file: "empirical_data/filtering_sum_node_results.jsonl"
+    
+  vanilla_max:
+    name: "VanillaMax"
+    processor: "node"
+    scorer: "max"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+    
+  tree_binary:
+    name: "TreeBinary"
+    processor: "hierarchical"
+    scorer: "hierarchical"
+    data_file: "empirical_data/infer_results.jsonl"
+    
+  tree_crsvp_max:
+    name: "TreeCRSVPMax"
+    processor: "node"
+    scorer: "max"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  tree_crsvp_sum:
+    name: "TreeCRSVPSum"
+    processor: "node"
+    scorer: "sum"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  # ── New evaluator-free methods (aggregator supplied at runtime) ──────────
+  # All load from node_results_test_set-{task}-{model}-{evaluator}.jsonl
+  vanilla:
+    name: "Vanilla"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  right_filter:
+    name: "RightFilter"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  left_filter:
+    name: "LeftFilter"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  2way_filter:
+    name: "TwoWayFilter"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+
+  tree_crsvp:
+    name: "TreeCRSVP"
+    data_file: "empirical_data/node_results_test_set.jsonl"
+    
+experiment:
+  alphas: [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+  n_trials: 1000
+  random_seed: 42
+
+output:
+  save_results: true
+  save_plots: true

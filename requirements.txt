@@ -1,0 +1,15 @@
+pandas
+openai
+datasets
+huggingface_hub
+numpy
+matplotlib
+tqdm
+scikit-learn
+transformers
+peft
+bitsandbytes
+accelerate
+seaborn
+torch
+python-dotenv

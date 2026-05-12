@@ -1,0 +1,9 @@
+OAI_CONFIG_LIST
+*.pyc
+*.csv
+logs/*
+empirical_data/*
+.vscode/settings.json
+.env
+empirical_data/experiment_*/data/test_data.csv
+.DS_Store
