@@ -6,7 +6,7 @@
 # Conformal Agent Error Attribution
 
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2605.06788&color=B31B1B&logo=arXiv)](https://arxiv.org/abs/2605.06788)
-[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-yellow?logo=huggingface)](https://huggingface.co/datasets/Layer6/RankJudge)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Paper-yellow?logo=huggingface)](https://huggingface.co/papers/2605.06788)
 [![Model Weights](https://img.shields.io/badge/Model%20Weights-Google%20Drive-blue?logo=googledrive)](https://drive.google.com/file/d/1_VwNu5IKSUNa8GWW8rFu0s-V9ZX-1IJC/view?usp=sharing)
 
 ## Abstract
