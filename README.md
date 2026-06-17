@@ -1,10 +1,13 @@
+<p align="center">
+<a href="https://layer6.ai/"><img src="https://github.com/layer6ai-labs/DropoutNet/blob/master/logs/logobox.jpg" width="180" height="90"></a>
+<a href="https://www.dal.ca///"><img src="https://github.com/layer6ai-labs/lfr/blob/main/logos/dalhousie_university.png" width="180" height="90"></a>
+</p>
+
 # Conformal Agent Error Attribution
 
-**ArXiv**: [arXiv:2605.06788](https://arxiv.org/abs/2605.06788v1)
-
-**HuggingFace**: [huggingface:2605.06788](https://huggingface.co/papers/2605.06788)
-
-**Finetuned Model**: [checkpoint.zip](https://drive.google.com/file/d/1_VwNu5IKSUNa8GWW8rFu0s-V9ZX-1IJC/view?usp=sharing)
+[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2605.06788&color=B31B1B&logo=arXiv)](https://arxiv.org/abs/2605.06788)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Dataset-yellow?logo=huggingface)](https://huggingface.co/datasets/Layer6/RankJudge)
+[![Model Weights](https://img.shields.io/badge/Model%20Weights-Google%20Drive-blue?logo=googledrive)](https://drive.google.com/file/d/1_VwNu5IKSUNa8GWW8rFu0s-V9ZX-1IJC/view?usp=sharing)
 
 ## Abstract
 
@@ -248,7 +251,20 @@ This means `adv_2way_filter` works with `NodeDataProcessor` output (via `score.p
 
 ---
 
+## Citing
+
+If you use any part of this repository in your research, please cite the associated paper with the following bibtex entry:
+
+```
+@article{feng2026conformal,
+  title={Conformal Agent Error Attribution},
+  author={Feng, Naihe and Sui, Yi and Hou, Shiyi and Wu, Ga and Cresswell, Jesse C},
+  journal={arXiv:2605.06788},
+  year={2026}
+}
+```
+
 ## License
 
-MIT
+This data and code is licensed under the MIT License, copyright by Layer 6 AI.
 
